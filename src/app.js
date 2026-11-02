@@ -1,7 +1,6 @@
 (() => {
   const V = window.VF, $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const fine = matchMedia('(pointer: fine)').matches;
 
   // заголовок: буквы вылетают по одной
   const h1 = $('.hero h1');
@@ -15,14 +14,14 @@
   const cv = $('#petals');
   if (cv && !calm) {
     const ctx = cv.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 2);
-    const cols = ['#ffb3c7', '#ff7aa2', '#ffd6e2', '#ffc38f', '#fff0f4'];
+    const cols = ['#e8b4b8', '#d98f97', '#f3d6d2', '#e9c9a8', '#fbeeea'];
     let W, H, P = [], mx = -999, my = -999;
     const size = () => { W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr; };
     const make = top => ({ x: Math.random() * W, y: top ? -20 * dpr : Math.random() * H, r: (5 + Math.random() * 8) * dpr,
       vy: (.4 + Math.random() * .9) * dpr, vx: (Math.random() - .5) * .6 * dpr, a: Math.random() * 6.3, va: (Math.random() - .5) * .04,
       sw: Math.random() * 6.3, c: cols[Math.random() * cols.length | 0], o: .55 + Math.random() * .4 });
     size(); addEventListener('resize', size);
-    const N = innerWidth < 760 ? 22 : 45;
+    const N = innerWidth < 760 ? 14 : 28;
     for (let i = 0; i < N; i++) P.push(make(false));
     addEventListener('pointermove', e => { mx = e.clientX * dpr; my = e.clientY * dpr; }, { passive: true });
     const tick = () => {
@@ -67,15 +66,6 @@
     group('.panel > h2, .panel > .sub, .chips, .zones, #of, .rel, .panel > details', 60);
     group('.card', 70); group('.steps li', 120); group('.adv li', 90);
   }
-
-  // наклон карточки за курсором
-  if (fine && !calm) $$('.card').forEach(c => {
-    c.addEventListener('pointermove', e => {
-      const b = c.getBoundingClientRect(), x = (e.clientX - b.left) / b.width - .5, y = (e.clientY - b.top) / b.height - .5;
-      c.style.setProperty('--ry', (x * 10).toFixed(2) + 'deg'); c.style.setProperty('--rx', (y * -10).toFixed(2) + 'deg');
-    });
-    c.addEventListener('pointerleave', () => { c.style.setProperty('--ry', '0deg'); c.style.setProperty('--rx', '0deg'); });
-  });
 
   // фильтр категорий с анимацией
   $$('.chip').forEach(ch => ch.addEventListener('click', () => {
@@ -135,7 +125,7 @@
     if (ok) b.classList.add('sent');
   });
 
-  // мышка на hero: стрелка «листай»
+  // подсказка «листай» на hero
   const hero = $('.hero:not(.small)');
-  if (hero) { hero.style.position = 'relative'; hero.insertAdjacentHTML('beforeend', '<span class="scroll" aria-hidden="true"></span>'); }
+  if (hero) { hero.style.position = 'relative'; hero.insertAdjacentHTML('beforeend', '<span class="scroll" aria-hidden="true">scroll</span>'); }
 })();

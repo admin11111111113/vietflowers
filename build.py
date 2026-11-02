@@ -351,6 +351,8 @@ def page(code, land=None):
     if code in LANDINGS:
         links = ''.join(f'<a href="{root}{t["path"]}{l["slug"]}/">{l["h1"]}</a>' for l in LANDINGS[code] if not land or l['slug'] != land['slug'])
         related = f'<section class="panel related"><h2>{esc(t["related"])}</h2><div class="rel">{links}</div></section>'
+    words = [t['items'][k][0] for k, *_ in CATALOG]
+    marquee = ''.join(f'<span>{esc(w)}</span>' for w in words * 2)
     intro = ''.join(f'<p>{esc(p)}</p>' for p in land['text']) if land else ''
     lo, hi = min(PRICE.values()), max(PRICE.values())
     ld = [{'@context': 'https://schema.org', '@type': 'Florist', 'name': BRAND, 'url': SITE + '/' + t['path'], 'image': f'{SITE}/img/og.jpg',
@@ -379,10 +381,10 @@ def page(code, land=None):
 {alts}
 <meta property="og:type" content="website"><meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}/img/og.jpg"><meta property="og:locale" content="{t['locale']}">
-<meta name="theme-color" content="#2a0f1c">
+<meta name="theme-color" content="#2f4a3a">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;600;700&display=swap&subset=cyrillic,vietnamese" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;600;700&display=swap&subset=cyrillic,vietnamese" rel="stylesheet">
 <link rel="preload" as="image" href="{root}img/bg.jpg">
 <link rel="stylesheet" href="{root}style.css">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
@@ -390,9 +392,10 @@ def page(code, land=None):
 <body>
 <div class="bg" aria-hidden="true">
   <video autoplay muted loop playsinline preload="auto" poster="{root}img/bg.jpg"><source src="{root}img/bg.webm" type="video/webm"><source src="{root}img/bg.mp4" type="video/mp4"></video>
-  <canvas id="petals"></canvas><div class="veil"></div>
+  <div class="veil"></div>
 </div>
-<header class="top"><a class="logo" href="{home}">🌸 {BRAND}</a><nav>{nav}</nav><div class="langs">{langs}</div></header>
+<canvas id="petals" aria-hidden="true"></canvas>
+<header class="top"><a class="logo" href="{home}">{BRAND}</a><nav>{nav}</nav><div class="langs">{langs}</div></header>
 <main>
 <section class="hero{' small' if land else ''}">
   {'' if land else f'<p class="badge">{esc(t["promise"])}</p>'}
@@ -401,6 +404,7 @@ def page(code, land=None):
   <div class="cta"><a class="btn main" href="#order">{esc(t['cta'])}</a>{btns(t, t['wa_text'])}</div>
   <ul class="adv">{adv}</ul>
 </section>
+<div class="marquee" aria-hidden="true"><div>{marquee}</div></div>
 <section id="catalog" class="panel"><h2>{esc(t['catalog'])}</h2><p class="sub">{esc(t['catalog_sub'])}</p>
   {chips}<div class="grid">{cards}</div>{f'<p class="more"><a href="{home}#catalog">{esc(t["more"])} →</a></p>' if land else ''}</section>
 <section id="order" class="panel order"><h2>{esc(t['form'])}</h2><p class="sub">{esc(t['form_sub'])}</p>
@@ -414,15 +418,15 @@ def page(code, land=None):
     <label class="w2">{esc(t['f_card'])}<textarea id="o-card" rows="2" placeholder="{esc(t['f_card_ph'])}"></textarea></label>
     <label class="w2">{esc(t['f_phone'])}<input id="o-phone" autocomplete="tel" placeholder="{esc(t['f_phone_ph'])}"></label>
     <input name="website" id="o-hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-    <div class="w2 cta"><button class="btn wa" id="o-wa" type="button">{WA_SVG}{esc(t['f_send_wa'])}</button><button class="btn tg" id="o-tg" type="button">{TG_SVG}{esc(t['f_send_tg'])}</button><button class="btn main" id="o-lead" type="button">✉️ {esc(t['f_lead'])}</button></div>
+    <div class="w2 cta"><button class="btn wa" id="o-wa" type="button">{WA_SVG}{esc(t['f_send_wa'])}</button><button class="btn tg" id="o-tg" type="button">{TG_SVG}{esc(t['f_send_tg'])}</button><button class="btn main" id="o-lead" type="button">{esc(t['f_lead'])}</button></div>
     <p class="w2 hint" id="o-hint" hidden></p>
   </form></section>
-<section id="delivery" class="panel"><h2>{esc(t['delivery'])}</h2><p class="sub">{esc(t['delivery_sub'])}</p><table class="zones">{zones}</table>
+<section id="delivery" class="panel alt"><h2>{esc(t['delivery'])}</h2><p class="sub">{esc(t['delivery_sub'])}</p><table class="zones">{zones}</table>
   <h3>{esc(t['pay'])}</h3><p class="sub">{esc(t['pay_sub'])}</p></section>
 <section id="how" class="panel"><h2>{esc(t['how'])}</h2><ol class="steps">{steps}</ol></section>
-<section id="faq" class="panel"><h2>{esc(t['faq'])}</h2>{faq_html}</section>
+<section id="faq" class="panel alt"><h2>{esc(t['faq'])}</h2>{faq_html}</section>
 {related}
-<section id="contacts" class="panel contacts"><h2>{esc(t['contacts'])}</h2><p class="sub">{esc(t['contacts_sub'])}</p>
+<section id="contacts" class="panel alt contacts"><h2>{esc(t['contacts'])}</h2><p class="sub">{esc(t['contacts_sub'])}</p>
   <div class="cta">{btns(t, t['wa_text'])}</div><p class="sub">WhatsApp {WA_SHOW} · Telegram @{TG_USER} · {HOURS}</p></section>
 </main>
 <footer><span>© {BRAND} · Nha Trang, Khánh Hòa</span><span>{langs}</span><span>{esc(t['credits'])}</span></footer>
