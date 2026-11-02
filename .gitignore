@@ -1,0 +1,5 @@
+supplier_raw/
+cand/
+*.bak*
+src/stock_old/
+__pycache__/
